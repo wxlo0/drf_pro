@@ -6,17 +6,14 @@
 项目运行方法：
 1.安装项目所需第模块：pip install -r requirments.txt
 
-2.数据库迁移：python manage.py makemigrations && python manage.py migrate
+2.修改数据库并迁移：python manage.py makemigrations && python manage.py migrate
 
 - [什么是DRF](#什么是drf)
 - [项目初始化](#项目初始化)
   - [1.项目目录结构](#1项目目录结构)
   - [2.将rest\_framework加入到django项目中](#2将rest_framework加入到django项目中)
   - [3.配置REST\_FRAMEWORK](#3配置rest_framework)
-    - [DEFAULT\_RENDERER\_CLASSES](#default_renderer_classes)
-    - [DEFAULT\_PARSER\_CLASSES](#default_parser_classes)
-    - [DEFAULT\_AUTHENTICATION\_CLASSES](#default_authentication_classes)
-    - [DEFAULT\_PERMISSION\_CLASSES](#default_permission_classes)
+  - [4.配置数据库](#4配置数据库)
 - [第一个APP：User](#第一个appuser)
   - [注册接口的实现](#注册接口的实现)
   - [登录接口的实现](#登录接口的实现)
