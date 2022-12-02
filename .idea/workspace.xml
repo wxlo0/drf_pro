@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ccc7e39-c24a-4432-8f01-0c2955f752c0" name="变更" comment="">
-      <change afterPath="$PROJECT_DIR$/apps/authentication/permissions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/authentication/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/authentication/views.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Authenticate.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/ExceptionHandler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/LogMiddleware.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,7 +131,7 @@
       <workItem from="1669466375038" duration="2431000" />
       <workItem from="1669469353367" duration="3727000" />
       <workItem from="1669893211072" duration="11803000" />
-      <workItem from="1669905886754" duration="12331000" />
+      <workItem from="1669905886754" duration="12632000" />
     </task>
     <servers />
   </component>
