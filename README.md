@@ -1,23 +1,33 @@
-# drf_pro
 
 👏欢迎来到我的DRF进阶之路💐💐
 
 **Start From Today** ⛽️⛽️⛽️⛽️⛽️⛽️   2022.3.21 Monday
 
-- [drf\_pro](#drf_pro)
-    - [什么是DRF](#什么是drf)
-    - [项目初始化](#项目初始化)
-    - [第一个APP：User](#第一个appuser)
-      - [注册接口的实现](#注册接口的实现)
-      - [登录接口的实现](#登录接口的实现)
-    - [Permissions权限验证](#permissions权限验证)
-      - [DRF提供的权限验证类型](#drf提供的权限验证类型)
-      - [在接口类中的使用](#在接口类中的使用)
-      - [在方法中使用](#在方法中使用)
-      - [自定义权限认证类](#自定义权限认证类)
-      - [自定义接口类中权限验证](#自定义接口类中权限验证)
-    - [DRF写出优美的logs](#drf写出优美的logs)
-      - [自定义日志记录配置](#自定义日志记录配置)
+项目运行方法：
+1.安装项目所需第模块：pip install -r requirments.txt
+
+2.数据库迁移：python manage.py makemigrations && python manage.py migrate
+
+- [什么是DRF](#什么是drf)
+- [项目初始化](#项目初始化)
+  - [1.项目目录结构](#1项目目录结构)
+  - [2.将rest\_framework加入到django项目中](#2将rest_framework加入到django项目中)
+  - [3.配置REST\_FRAMEWORK](#3配置rest_framework)
+    - [DEFAULT\_RENDERER\_CLASSES](#default_renderer_classes)
+    - [DEFAULT\_PARSER\_CLASSES](#default_parser_classes)
+    - [DEFAULT\_AUTHENTICATION\_CLASSES](#default_authentication_classes)
+    - [DEFAULT\_PERMISSION\_CLASSES](#default_permission_classes)
+- [第一个APP：User](#第一个appuser)
+  - [注册接口的实现](#注册接口的实现)
+  - [登录接口的实现](#登录接口的实现)
+- [Permissions权限验证](#permissions权限验证)
+  - [DRF提供的权限验证类型](#drf提供的权限验证类型)
+  - [在接口类中的使用](#在接口类中的使用)
+  - [在方法中使用](#在方法中使用)
+  - [自定义权限认证类](#自定义权限认证类)
+  - [自定义接口类中权限验证](#自定义接口类中权限验证)
+- [DRF写出优美的logs](#drf写出优美的logs)
+  - [自定义日志记录配置](#自定义日志记录配置)
 
 ### 什么是DRF
 
@@ -41,11 +51,32 @@ main分支 🌹
 
 ### 项目初始化
 
-**!!!!注意第一步不要迁移数据库！！！**
+项目初始化我们都需要做一些什么东西？接下来我们来看一下。
 
-🈲️ python manage.py makemigrations & python manage.py migrate
+#### 1.项目目录结构
 
-首先你需在你的 settings.py: INSTALLED_APPS 中加入以下两个drf必须的app
+Django 是一个出色的基于 Python 的开源 Web 开发框架，你可以使用它来创建全栈 Web 应用程序
+
+由于它是一个框架，因此最初可以预期项目中有许多文件。对于初学者来说，一开始可能会让人不知所措，
+
+但没有什么可担心的；随着时间的推移，一切都会变得简单。
+
+由于 Django 已经存在一段时间了，你需要了解 Django 工作目录结构的最佳实践，以便在这方面取得更成功的项目区域。
+
+    drf_pro\
+       apps\           => 存放项目所需app    
+           app1\      
+           app2\
+       core\           => 存放项目所需核心模块文件
+       drf_pro\
+       logs\           => 存放项目日志
+       static\         => 存放项目静态文件
+       manage.py
+       requirements.txt
+
+#### 2.将rest_framework加入到django项目中
+
+首先你需在你的 `settings.py: INSTALLED_APPS` 中加入以下两个drf必须的app
 
 - rest_framework 是为了把drf框架引入到你的项目
 
@@ -61,28 +92,83 @@ INSTALLED_APPS = [
 
 ```
 
-接下来把下面的 REST_FRAMEWORK 拷贝到你的setting.py文件中，里边包含了一些drf的基本配置
+#### 3.配置REST_FRAMEWORK
+
+接下来把下面的我们应该设置 REST_FRAMEWORK
+
+
+drf的配置全部在单个 Django 设置中命名空间，名为REST_FRAMEWORK.
+
+例如，您的项目settings.py文件可能包含如下内容：
 
 ```python
-
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
-    'DEFAULT_RENDER_CLASSES': [
-        'rest_framework.renders.JSONRenderer',
-        'rest_framework.renders.BrowsableAPIRenderer',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
     ],
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser',
     ]
-  }
+}
 ```
+
+如果你不知道你的REST_FRAMEWORK中都是设置的什么内容那么你最好将其设置为{}，以防发生意想不到的错误⚠️
+
+API参考，本处列举一些比较常用的API，具体请参考[官方文档](https://q1mi.github.io/Django-REST-framework-documentation/api-guide/settings/)
+
+`DEFAULT_RENDERER_CLASSES`
+
+Response渲染器类的列表或元组，用于确定返回对象时可能使用的默认渲染器集。
+
+默认：
+
+```python
+[
+    'rest_framework.renderers.JSONRenderer',
+    'rest_framework.renderers.BrowsableAPIRenderer',
+]
+```
+
+`DEFAULT_PARSER_CLASSES`
+
+解析器类的列表或元组，用于确定访问request.data属性时使用的默认解析器集。
+
+默认：
+
+```python
+[
+    'rest_framework.parsers.JSONParser',
+    'rest_framework.parsers.FormParser',
+    'rest_framework.parsers.MultiPartParser'
+]
+```
+
+`DEFAULT_AUTHENTICATION_CLASSES`
+
+身份验证类的列表或元组，用于确定访问request.user或request.auth属性时使用的默认身份验证器集。
+
+默认：
+
+```python
+[
+    'rest_framework.authentication.SessionAuthentication',
+    'rest_framework.authentication.BasicAuthentication'
+]
+```
+
+`DEFAULT_PERMISSION_CLASSES`
+
+权限类的列表或元组，确定在视图开始时检查的默认权限集。列表中的每个类都必须授予权限。
+
+默认：
+
+```python
+[
+    'rest_framework.permissions.AllowAny',
+]
+```
+
+#### 4.配置数据库
 
 数据库的设置Django默认数据库为sqlite 你可以把他换成你的mysql数据库，只需要简单的配置 settings.py: DATABASES 即可
 
@@ -99,6 +185,22 @@ DATABASES = {
     }
 }
 ```
+
+当然这是最简单最普遍的做法
+
+当然您也可以使用`dj-database-url`正如我的drf_pro一样，使用url的方式来连接数据库
+
+```python
+DATABASES = {
+    'default': config(
+        'DATABASE_URL',
+        cast=db_url
+    )
+}
+```
+
+> DATABASE_URL请查看.env文件
+
 配置完DATABASE之后，你需要在你的项目初始文件夹的__init__.py中添加以下内容，以确保连接数据库
 
 DRF_Professional/__init__.py
