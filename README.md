@@ -14,7 +14,7 @@
   - [2.将rest\_framework加入到django项目中](#2将rest_framework加入到django项目中)
   - [3.配置REST\_FRAMEWORK](#3配置rest_framework)
   - [4.配置数据库](#4配置数据库)
-- [第一个APP：User](#第一个appuser)
+- [重写DjangoUser表](#重写djangouser表)
   - [注册接口的实现](#注册接口的实现)
   - [登录接口的实现](#登录接口的实现)
 - [Permissions权限验证](#permissions权限验证)
@@ -25,6 +25,7 @@
   - [自定义接口类中权限验证](#自定义接口类中权限验证)
 - [DRF写出优美的logs](#drf写出优美的logs)
   - [自定义日志记录配置](#自定义日志记录配置)
+
 
 ### 什么是DRF
 
@@ -210,48 +211,86 @@ pymysql.install_as_MySQLdb()
 至此基本配置完成✅✅✅✅✅
 
 
-### 第一个APP：User
+### 重写DjangoUser表
 
 Django框架在你第一次进行数据库迁移的时候会默认给你生成User表
 
-当然你也可以继承默认User表来创建自己的User表
+当然你也可以选择继承默认User表来创建拥有自己专属字段的User表（必须是在第一次迁移之前⚠️）
 
-首先你需要先start一个 user app：python manage.py startapp user
+例如：
 
-之后将此app注册到你的setting.py: INSTALLED_APPS中
-
-在user/models.py中写入以下代码来创建你的user表：
-
-可添加额外你所需要字段
+创建User类并继承Django中的AbstractUser
 
 ```python
-
-SEX_CHOICES = [
-    (1, '男'),
-    (2, '女')
-]
-
 class User(AbstractUser):
-    nickname = models.CharField(
-        max_length=150
-    )
-    sex = models.IntegerField(
-        choices=SEX_CHOICES
-    )
-
+    username = models.CharField(max_length=255, unique=True)
+    email = models.EmailField(max_length=255, unique=True)
+    telephone = models.CharField(max_length=11, unique=True, null=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ["username"]
+    
+    objects = UserManager()
+    
     def __str__(self):
-        return self.nickname
+        return self.email
 
     class Meta:
-        # 默认id升序排序
-        ordering = ['-id']
-        # 数据库表名
-        db_table = 'user'
+        db_table = "user"
+
+```
+
+其中 
+
+- `USERNAME_FIELD`指定的是您要将那个字段设置为账号，默认为username
+- `REQUIRED_FIELDS`指定的是在您使用createsuperuser命令时，需要额外输入的字段。
+- `str`方法指定了User.objects.get方法查到指定user对象后返回的内容
+- `db_table`指定了数据库中存储的表名称
+
+当您更改`USERNAME_FIELD`后，需要重新设置`UserManager`，如下所示
+
+```python
+class UserManager(BaseUserManager):
+
+    def create_user(self, username, email, password=None):
+        if username is None:
+            raise TypeError('用户应该有一个用户名')
+        if email is None:
+            raise TypeError('用户应该有一个电子邮件')
+
+        user = self.model(username=username, email=self.normalize_email(email))
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, username, email, password=None):
+        if password is None:
+            raise TypeError('密码不应该是None')
+
+        user = self.create_user(username, email, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return
+```
+因为我的User表中，设置的`USERNAME_FIELD`字段为email，username同样是必填项，所以在重写`create_user`和`create_superuser`时，需要得到username, email, password三个字段的数据。
+
+当重构完User表后，你必须在setting.py中指定它
+
+```python
+# 自定义用户模型
+AUTH_USER_MODEL = 'authentication.User'
 ```
 
 至此 可进行第一次数据库迁移 ✌️ ✌️
 
-**可前往apps/user/views.py 中查看万能注册、登录接口**
+你需要完整的运行`makemigrations`和`migrate`
+
+如果像平时新的项目一样只运行`migrate`时，可能会发生数据库的关联外建错误，是因为你的User表没有被create
+
 
 #### 注册接口的实现
 
